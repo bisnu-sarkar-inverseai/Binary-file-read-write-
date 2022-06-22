@@ -15,7 +15,9 @@ int main()
         return 0;
     }
     else{
-        dc.setData(in);
+       vector<layer> Layer = dc.setData(in);
+
+       dc.display(Layer[0]);
     }
  
 }

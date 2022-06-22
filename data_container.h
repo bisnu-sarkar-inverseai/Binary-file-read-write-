@@ -8,7 +8,7 @@ using namespace std;
 class tensor
 {
 public:
-    vector<vector<long long>> data;
+    vector<vector<unsigned long long>> data;
 };
 
 class tensors
@@ -30,8 +30,9 @@ public:
 class DataContainer
 {
 public:
-    void setData(ifstream & in);
+    vector<layer> setData(ifstream & in);
     void readInt(ifstream & in, int &x);
-    void readLong(ifstream & in, long long &x);
+    void readLong(ifstream & in, unsigned long long &x);
     void readDouble(ifstream & in, double &x);
+    void display(layer l);
 };
