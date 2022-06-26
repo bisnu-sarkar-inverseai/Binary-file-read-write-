@@ -1,4 +1,75 @@
-#include "data_container.h"
+#include "restore_quantize.h"
+
+#define  vec_un_short vector<unsigned short>
+#define vec_un_long_long vector<unsigned long long>
+
+restore_quantize_state state;
+
+
+
+vector<unsigned short> restore_quantize_state:: unpacked_bits(vector<vector<vec_un_long_long > > packed_bits)
+{
+    int lines = packed_bits.size();
+    int nbits = packed_bits[0].size();
+    int block_size = packed_bits[0][0].size();
+
+   // cout<<lines<<" "<<nbits<<" "<<block_size<<endl;
+    int storage =64;
+
+    vec_un_short out(lines*block_size*storage,0);
+
+    unsigned short x;
+    unsigned long long tem;
+    int c=0;
+    for(int line=0;line<lines;++line){
+        for(int bit_in=0;bit_in<storage;++bit_in){
+            for(int bit_out=0;bit_out<nbits;++bit_out){
+               for(int index=0;index<block_size;++index){           
+                    tem = packed_bits[line][bit_out][index];
+                   // cout<<tem<<endl;
+                    x = (tem >> bit_in) & 1;
+                    out[line * block_size * storage + bit_in * block_size + index] |= x << bit_out;
+               } 
+            }
+           // cout<<bit_in<<endl;
+        }
+       // cout<<line<<endl;
+    }
+   
+    return out; 
+}
+
+
+void restore_quantize_state:: unpack_param(vector<tensors> packed_all_level,double scale0,double scale1, tensor packed_bits)
+{
+    vector<vector<vec_un_long_long> > packed_bit_3d;
+   
+    packed_bit_3d.push_back(packed_bits.data);
+    //cout<<packed_bit_3d.size()<<endl;
+    //vec_un_short packed_bits_up =
+    state.unpacked_bits(packed_bit_3d);
+
+
+}
+
+void restore_quantize_state:: restore_state(vector<layer> layers){
+    int num_layers = layers.size();
+
+    printf("Num layers: %d\n", num_layers);
+    for(int i=0; i<num_layers; i++){
+        vector<tensors> packed_all_level = layers[i].packed_all_levels;
+        double scale0 = layers[i].scale[0];
+        double scale1 = layers[i].scale[1];
+        tensor packed_bits = layers[i].packed_bits;
+        
+      
+        //tuple<vector<tensors>,double, double, tensor > quantize = 
+        state.unpack_param(packed_all_level,scale0,scale1,packed_bits);  
+
+
+    }
+}
+
 
 void DataContainer::readInt(ifstream &in, int &x)
 {
